@@ -245,9 +245,10 @@ function newGame() {
     [
       () => {
         closeStatsModal();
-        [...$$('keyboard-row button')].forEach((key) =>
-          key.setAttribute('style', '')
-        );
+        [...$$('keyboard-row button')].forEach((key) => {
+          key.setAttribute('style', '');
+          key.classList.remove('wrongLetter', 'wrongSpot', 'rightSpot');
+        });
         $('toast-container').replaceChildren()
       }
     ]
@@ -280,14 +281,6 @@ async function paint(oldGameState, newGameState) {
   }
 
   newGameState.gameBoard.forEach(({ letter, state }, idx) => {
-    if (letter) {
-      const letterEl = $('#' + letter);
-      letterEl.style = {};
-
-      state == 'wrongLetter' && letterEl.classList.add('wrongLetter');
-      state == 'wrongSpot' && letterEl.classList.add('wrongSpot');
-      state == 'rightSpot' && letterEl.classList.add('rightSpot');
-    }
     // Dont bother repainting tiles
     const { letter: oldLetter, state: oldState } = oldGameState.gameBoard[idx];
     if (oldLetter == letter && state == oldState) return;
@@ -313,11 +306,36 @@ async function paint(oldGameState, newGameState) {
       tiles[idx].style.color = '';
       tiles[idx].style.borderColor = '';
     }
+  });
 
-    if (newGameState.pointer == 0)
-      $$('keyboard-row button').forEach((key) => {
-        key.classList = '';
-      });
+  if (newGameState.pointer == 0) {
+    $$('keyboard-row button').forEach((key) => {
+      key.classList.remove('wrongLetter', 'wrongSpot', 'rightSpot');
+    });
+  }
+
+  // Update keyboard key states based on highest priority (rightSpot > wrongSpot > wrongLetter)
+  const keyStatePriority = {
+    wrongLetter: 1,
+    wrongSpot: 2,
+    rightSpot: 3,
+  };
+
+  const keyStates = {};
+  newGameState.gameBoard.forEach(({ letter, state }) => {
+    if (letter && keyStatePriority[state]) {
+      const currentPriority = keyStatePriority[keyStates[letter]] || 0;
+      if (keyStatePriority[state] > currentPriority) {
+        keyStates[letter] = state;
+      }
+    }
+  });
+
+  Object.entries(keyStates).forEach(([letter, state]) => {
+    const letterEl = $('#' + letter);
+    if (!letterEl) return;
+    letterEl.classList.remove('wrongLetter', 'wrongSpot', 'rightSpot');
+    letterEl.classList.add(state);
   });
 }
 
