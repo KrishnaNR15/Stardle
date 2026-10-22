@@ -599,6 +599,37 @@ document.addEventListener('click', function(e) {
 
 
 /* ==============================================================
+   4b. MOBILE HAMBURGER MENU
+   ============================================================== */
+
+let mobileMenuOpen = false;
+
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobile-menu');
+  const btn = document.getElementById('hamburger-btn');
+  if (!menu || !btn) return;
+
+  mobileMenuOpen = !mobileMenuOpen;
+  menu.classList.toggle('open', mobileMenuOpen);
+  menu.setAttribute('aria-hidden', String(!mobileMenuOpen));
+  btn.setAttribute('aria-expanded', String(mobileMenuOpen));
+}
+
+// Close mobile menu when clicking outside
+document.addEventListener('click', function(e) {
+  if (!mobileMenuOpen) return;
+  const btn = document.getElementById('hamburger-btn');
+  const menu = document.getElementById('mobile-menu');
+  if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) {
+    mobileMenuOpen = false;
+    menu.classList.remove('open');
+    menu.setAttribute('aria-hidden', 'true');
+    btn.setAttribute('aria-expanded', 'false');
+  }
+});
+
+
+/* ==============================================================
    5. WORD POPUP — post-game reveal
    ============================================================== */
 

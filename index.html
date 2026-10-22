@@ -133,21 +133,43 @@
       <!-- Title (center) -->
       <h1 id="stardle-title" onClick="toggleColorScheme()">STARDLE</h1>
 
-      <!-- Right side: Stats icon + Dhruva logo -->
+      <!-- Right side: Stats icon + Dhruva logo + Hamburger (mobile) -->
       <div id="header-right">
         <button id="how-to-play-btn" aria-label="How to play" onclick="showHowToPlay()" title="How to play">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         </button>
-        <a href="https://constellations-v1.vercel.app/" class="game-link">
+        <!-- Desktop-only: Play Constellations link -->
+        <a href="https://constellations-v1.vercel.app/" class="game-link" target="_blank" rel="noopener">
           Play Constellations →
         </a>
         <svg id="stats-icon" class="header-icon" role="button" onclick="showStatsModal()" xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24">
           <title>Show Stats</title>
           <path fill="var(--headerIconColor)" d="M16,11V3H8v6H2v12h20V11H16z M10,5h4v14h-4V5z M4,11h4v8H4V11z M20,19h-4v-6h4V19z"></path>
         </svg>
-        <a href="https://teamdhruva.com" target="_blank" rel="noopener" id="dhruva-logo-link" aria-label="Dhruva Astronomy Club">
+        <!-- Desktop-only: Dhruva logo -->
+        <a href="https://teamdhruva.com" target="_blank" rel="noopener" id="dhruva-logo-link" aria-label="Dhruva Astronomy Club" class="desktop-only">
           <img src="dhruva_logo.jpg" alt="Dhruva Astronomy Club logo" id="dhruva-logo" />
         </a>
+        <!-- Mobile-only: Hamburger menu -->
+        <button id="hamburger-btn" aria-label="Open menu" aria-expanded="false" onclick="toggleMobileMenu()" class="mobile-only">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <!-- Mobile dropdown menu -->
+        <div id="mobile-menu" role="menu" aria-hidden="true" class="mobile-only">
+          <a href="https://constellations-v1.vercel.app/" target="_blank" rel="noopener" role="menuitem" class="mobile-menu-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Play Constellations
+          </a>
+          <div class="mobile-menu-divider"></div>
+          <a href="https://teamdhruva.com" target="_blank" rel="noopener" role="menuitem" class="mobile-menu-item">
+            <img src="dhruva_logo.jpg" alt="Dhruva logo" class="mobile-menu-logo" />
+            Dhruva Astronomy Club
+          </a>
+        </div>
       </div>
     </header>
 
