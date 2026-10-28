@@ -599,14 +599,14 @@ document.addEventListener('click', function(e) {
 
 
 /* ==============================================================
-   4b. MOBILE HAMBURGER MENU
+   4b. MOBILE DROPDOWN MENU
    ============================================================== */
 
 let mobileMenuOpen = false;
 
 function toggleMobileMenu() {
   const menu = document.getElementById('mobile-menu');
-  const btn = document.getElementById('hamburger-btn');
+  const btn = document.getElementById('mobile-dropdown-btn') || document.getElementById('hamburger-btn');
   if (!menu || !btn) return;
 
   mobileMenuOpen = !mobileMenuOpen;
@@ -615,16 +615,36 @@ function toggleMobileMenu() {
   btn.setAttribute('aria-expanded', String(mobileMenuOpen));
 }
 
+function closeMobileMenu() {
+  if (!mobileMenuOpen) return;
+  const menu = document.getElementById('mobile-menu');
+  const btn = document.getElementById('mobile-dropdown-btn') || document.getElementById('hamburger-btn');
+  mobileMenuOpen = false;
+  if (menu) {
+    menu.classList.remove('open');
+    menu.setAttribute('aria-hidden', 'true');
+  }
+  if (btn) {
+    btn.setAttribute('aria-expanded', 'false');
+  }
+}
+
 // Close mobile menu when clicking outside
 document.addEventListener('click', function(e) {
   if (!mobileMenuOpen) return;
-  const btn = document.getElementById('hamburger-btn');
+  const btn = document.getElementById('mobile-dropdown-btn') || document.getElementById('hamburger-btn');
   const menu = document.getElementById('mobile-menu');
   if (btn && menu && !btn.contains(e.target) && !menu.contains(e.target)) {
-    mobileMenuOpen = false;
-    menu.classList.remove('open');
-    menu.setAttribute('aria-hidden', 'true');
-    btn.setAttribute('aria-expanded', 'false');
+    closeMobileMenu();
+  }
+});
+
+// Close mobile menu on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && mobileMenuOpen) {
+    closeMobileMenu();
+    const btn = document.getElementById('mobile-dropdown-btn') || document.getElementById('hamburger-btn');
+    if (btn) btn.focus();
   }
 });
 

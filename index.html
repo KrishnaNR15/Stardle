@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <link rel="preload" href="script.js" as="script">
     <link rel="preload" href="possibleWords.js" as="script">
-    <link rel="stylesheet" type="text/css" href="styles.css?v=v6ultra">
-    <link rel="stylesheet" type="text/css" href="stardle.css?v=v6ultra">
+    <link rel="stylesheet" type="text/css" href="styles.css?v=v7">
+    <link rel="stylesheet" type="text/css" href="stardle.css?v=v7">
     <style>
       /* Force maximum brightness, crystal-clear white letters, and luminous astronomical tiles */
       :root, :root.dark, :root.light {
@@ -150,22 +150,21 @@
         <a href="https://teamdhruva.com" target="_blank" rel="noopener" id="dhruva-logo-link" aria-label="Dhruva Astronomy Club" class="desktop-only">
           <img src="dhruva_logo.jpg" alt="Dhruva Astronomy Club logo" id="dhruva-logo" />
         </a>
-        <!-- Mobile-only: Hamburger menu -->
-        <button id="hamburger-btn" aria-label="Open menu" aria-expanded="false" onclick="toggleMobileMenu()" class="mobile-only">
-          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <line x1="3" y1="6" x2="21" y2="6"/>
-            <line x1="3" y1="12" x2="21" y2="12"/>
-            <line x1="3" y1="18" x2="21" y2="18"/>
+        <!-- Mobile-only: Dropdown menu button with Dhruva logo & chevron -->
+        <button id="mobile-dropdown-btn" aria-label="Dhruva menu" aria-haspopup="true" aria-expanded="false" onclick="toggleMobileMenu()" class="mobile-only">
+          <img src="dhruva_logo.jpg" alt="Dhruva logo" class="dropdown-btn-logo" />
+          <svg class="dropdown-chevron" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
         </button>
         <!-- Mobile dropdown menu -->
         <div id="mobile-menu" role="menu" aria-hidden="true" class="mobile-only">
-          <a href="https://constellations-v1.vercel.app/" target="_blank" rel="noopener" role="menuitem" class="mobile-menu-item">
+          <a href="https://constellations-v1.vercel.app/" target="_blank" rel="noopener" role="menuitem" class="mobile-menu-item" onclick="closeMobileMenu()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
             Play Constellations
           </a>
           <div class="mobile-menu-divider"></div>
-          <a href="https://teamdhruva.com" target="_blank" rel="noopener" role="menuitem" class="mobile-menu-item">
+          <a href="https://teamdhruva.com" target="_blank" rel="noopener" role="menuitem" class="mobile-menu-item" onclick="closeMobileMenu()">
             <img src="dhruva_logo.jpg" alt="Dhruva logo" class="mobile-menu-logo" />
             Dhruva Astronomy Club
           </a>
@@ -443,6 +442,6 @@
   </div>
   </body>
 
-  <script src="script.js?v=v6ultra"></script>
-  <script src="stardle.js?v=v6ultra"></script>
+  <script src="script.js?v=v7"></script>
+  <script src="stardle.js?v=v7"></script>
 </html>
