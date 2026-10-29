@@ -1262,48 +1262,80 @@ bar-container.latest-win bar {
   }
 }
 
-/* ===== Hamburger Button ===== */
+/* ===== Mobile Dropdown Button (Dhruva logo + chevron) ===== */
+#mobile-dropdown-btn,
 #hamburger-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   cursor: pointer;
   color: #cbd5e1;
-  padding: 5px;
-  border-radius: 6px;
-  transition: color 0.15s ease, background 0.15s ease;
+  padding: 3px 6px 3px 3px;
+  border-radius: 7px;
+  transition: all 0.18s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
+#mobile-dropdown-btn:hover,
 #hamburger-btn:hover {
   color: #ffffff;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.35);
 }
+#mobile-dropdown-btn[aria-expanded="true"],
 #hamburger-btn[aria-expanded="true"] {
   color: #ffffff;
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+.dropdown-btn-logo {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  object-fit: cover;
+  display: block;
+  flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.dropdown-chevron {
+  flex-shrink: 0;
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  stroke: #cbd5e1;
+}
+#mobile-dropdown-btn:hover .dropdown-chevron,
+#mobile-dropdown-btn[aria-expanded="true"] .dropdown-chevron,
+#hamburger-btn:hover .dropdown-chevron,
+#hamburger-btn[aria-expanded="true"] .dropdown-chevron {
+  stroke: #ffffff;
+}
+#mobile-dropdown-btn[aria-expanded="true"] .dropdown-chevron,
+#hamburger-btn[aria-expanded="true"] .dropdown-chevron {
+  transform: rotate(180deg);
 }
 
 /* ===== Mobile Dropdown Menu ===== */
 #mobile-menu {
   position: absolute;
-  top: calc(100% + 4px);
+  top: calc(100% + 6px);
   right: 0;
   z-index: 200;
-  background: #0f1929;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 11px;
   padding: 6px;
-  min-width: 210px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255,255,255,0.05);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  min-width: 215px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
   /* hidden by default */
   opacity: 0;
   pointer-events: none;
   transform: translateY(-6px) scale(0.97);
   transform-origin: top right;
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 #mobile-menu.open {
   opacity: 1;
@@ -1325,7 +1357,8 @@ bar-container.latest-win bar {
   transition: background 0.15s ease, color 0.15s ease;
   white-space: nowrap;
 }
-.mobile-menu-item:hover {
+.mobile-menu-item:hover,
+.mobile-menu-item:active {
   background: rgba(255, 255, 255, 0.1);
   color: #ffffff;
 }
