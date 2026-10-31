@@ -65,7 +65,7 @@ function mulberry32(a) {
   };
 }
 
-// Fisher-Yates shuffle with seeded PRNG
+// Fisher-Yates shuffle with seeded PRNG (over a range 0..length-1)
 function getShuffledIndices(length, seed) {
   const indices = Array.from({ length }, (_, i) => i);
   const rand = mulberry32(seed);
@@ -74,6 +74,17 @@ function getShuffledIndices(length, seed) {
     [indices[i], indices[j]] = [indices[j], indices[i]];
   }
   return indices;
+}
+
+// Fisher-Yates shuffle over an arbitrary array of values
+function shuffleArray(arr, seed) {
+  const a = [...arr];
+  const rand = mulberry32(seed);
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 let cachedCycle = null;
@@ -107,9 +118,39 @@ function getDaysSinceEpoch() {
   return Math.floor((nowIST - epoch) / (24 * 60 * 60 * 1000));
 }
 
+// --- Transition phase constants ---
+// Day 1034 (Oct 31, 2026 IST) is the last day of the pre-computed history.
+// Positions 0-8 of cycle 27 were already served before this fix was deployed.
+// For the remainder of cycle 27 (days 1035-1063) we serve only the 29 unplayed
+// word indices, shuffled with a dedicated seed, so no word repeats within ~38 days.
+const TRANSITION_CYCLE        = 27;
+const TRANSITION_PLAYED       = 9;   // how many slots of cycle 27 are consumed
+const TRANSITION_START_DAY    = 1035; // first day of the transition phase
+const TRANSITION_END_DAY      = 1063; // last day  of the transition phase (= 1035 + 28)
+const TRANSITION_SEED         = (TRANSITION_CYCLE * 2654435761 + 9999) >>> 0;
+
+// Lazily-computed, cached transition permutation
+let _transitionPerm = null;
+function getTransitionPermutation(length) {
+  if (_transitionPerm) return _transitionPerm;
+  const cycle27Perm   = getCyclePermutation(TRANSITION_CYCLE, length);
+  const unplayedSlots = cycle27Perm.slice(TRANSITION_PLAYED); // 29 remaining word indices
+  _transitionPerm     = shuffleArray(unplayedSlots, TRANSITION_SEED);
+  return _transitionPerm;
+}
+
 function getISTDayIndex(length = curatedWords.length) {
   if (!length) return 0;
   const days = getDaysSinceEpoch();
+
+  // Transition phase: serve only words not yet played in cycle 27
+  if (days >= TRANSITION_START_DAY && days <= TRANSITION_END_DAY) {
+    const transitionPerm = getTransitionPermutation(length);
+    const offset = days - TRANSITION_START_DAY; // 0..28
+    return transitionPerm[offset];
+  }
+
+  // Normal cycle logic (applies to days before the transition and day 1064+)
   const cycle = Math.floor(days / length);
   const dayInCycle = ((days % length) + length) % length;
   const permutation = getCyclePermutation(cycle, length);
