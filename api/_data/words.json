@@ -1,0 +1,382 @@
+[
+  {
+    "word": "apsis",
+    "song": "Gravity",
+    "artist": "Michael Johnston",
+    "spotify": "https://open.spotify.com/search/Gravity+Michael+Johnston",
+    "apple": "https://music.apple.com/us/search?term=Gravity+Michael+Johnston",
+    "youtube": "https://music.youtube.com/search?q=Gravity+Michael+Johnston",
+    "articleUrl": "https://en.wikipedia.org/wiki/Apsis",
+    "explanation": "An apsis is the point in an orbit where an orbiting body is either at its closest (periapsis) or farthest (apoapsis) distance from the central body it orbits."
+  },
+  {
+    "word": "epoch",
+    "song": "Time in a Bottle",
+    "artist": "Jim Croce",
+    "spotify": "https://open.spotify.com/search/Time+in+a+Bottle+Jim+Croce",
+    "apple": "https://music.apple.com/us/search?term=Time+in+a+Bottle+Jim+Croce",
+    "youtube": "https://music.youtube.com/search?q=Time+in+a+Bottle+Jim+Croce",
+    "articleUrl": "https://en.wikipedia.org/wiki/Epoch_(astronomy)",
+    "explanation": "In astronomy, an epoch is a specific moment in time used as a reference point for celestial coordinates. It defines the position of objects on the celestial sphere."
+  },
+  {
+    "word": "comet",
+    "song": "Firework",
+    "artist": "Katy Perry",
+    "spotify": "https://open.spotify.com/search/Firework+Katy+Perry",
+    "apple": "https://music.apple.com/us/search?term=Firework+Katy+Perry",
+    "youtube": "https://music.youtube.com/search?q=Firework+Katy+Perry",
+    "articleUrl": "https://en.wikipedia.org/wiki/Comet",
+    "explanation": "A comet is an icy small Solar System body that warms and begins to release gases when passing close to the Sun — a process called outgassing — producing a visible coma and sometimes a tail."
+  },
+  {
+    "word": "lunar",
+    "song": "Midnight Sun",
+    "artist": "Zara Larsson",
+    "spotify": "https://open.spotify.com/search/Midnight+Sun+Zara+Larsson",
+    "apple": "https://music.apple.com/us/search?term=Midnight+Sun+Zara+Larsson",
+    "youtube": "https://music.youtube.com/search?q=Midnight+Sun+Zara+Larsson",
+    "articleUrl": "https://en.wikipedia.org/wiki/Moon",
+    "explanation": "Lunar refers to anything relating to the Moon. The word comes from 'Luna', the Latin name for Earth's natural satellite."
+  },
+  {
+    "word": "helio",
+    "song": "Feel the Fiyaaaah",
+    "artist": "Metro Boomin",
+    "spotify": "https://open.spotify.com/search/Feel+the+Fiyaaaah+Metro+Boomin",
+    "apple": "https://music.apple.com/us/search?term=Feel+the+Fiyaaaah+Metro+Boomin",
+    "youtube": "https://music.youtube.com/search?q=Feel+the+Fiyaaaah+Metro+Boomin",
+    "articleUrl": "https://en.wiktionary.org/wiki/helio-",
+    "explanation": "Helio- is a prefix meaning 'Sun', from the Greek 'Helios'. It appears in words like heliocentrism (Sun-centred) and heliosphere (the region of space dominated by the Sun's magnetic field)."
+  },
+  {
+    "word": "orbit",
+    "song": "Chewing Gum",
+    "artist": "Blood Orange",
+    "spotify": "https://open.spotify.com/search/Chewing+Gum+Blood+Orange",
+    "apple": "https://music.apple.com/us/search?term=Chewing+Gum+Blood+Orange",
+    "youtube": "https://music.youtube.com/search?q=Chewing+Gum+Blood+Orange",
+    "articleUrl": "https://en.wikipedia.org/wiki/Orbit",
+    "explanation": "An orbit is the curved path of an object around a star, planet, or moon due to gravity. Most orbits are elliptical, a discovery attributed to Johannes Kepler."
+  },
+  {
+    "word": "solar",
+    "song": "HOT TO GO!",
+    "artist": "Chappell Roan",
+    "spotify": "https://open.spotify.com/search/HOT+TO+GO%21+Chappell+Roan",
+    "apple": "https://music.apple.com/us/search?term=HOT+TO+GO%21+Chappell+Roan",
+    "youtube": "https://music.youtube.com/search?q=HOT+TO+GO%21+Chappell+Roan",
+    "articleUrl": "https://en.wikipedia.org/wiki/Sun",
+    "explanation": "Solar refers to anything relating to the Sun. The Solar System consists of the Sun and all objects gravitationally bound to it, including the eight planets."
+  },
+  {
+    "word": "night",
+    "song": "After Hours",
+    "artist": "The Weeknd",
+    "spotify": "https://open.spotify.com/search/After+Hours+The+Weeknd",
+    "apple": "https://music.apple.com/us/search?term=After+Hours+The+Weeknd",
+    "youtube": "https://music.youtube.com/search?q=After+Hours+The+Weeknd",
+    "articleUrl": "https://en.wikipedia.org/wiki/Night",
+    "explanation": "Night is the period between sunset and sunrise, when the Sun is below the horizon. Earth's rotation causes the cycle of day and night."
+  },
+  {
+    "word": "atoms",
+    "song": "The Scientist",
+    "artist": "Coldplay",
+    "spotify": "https://open.spotify.com/search/The+Scientist+Coldplay",
+    "apple": "https://music.apple.com/us/search?term=The+Scientist+Coldplay",
+    "youtube": "https://music.youtube.com/search?q=The+Scientist+Coldplay",
+    "articleUrl": "https://en.wikipedia.org/wiki/Atom",
+    "explanation": "Atoms are the fundamental units of ordinary matter. Each atom has a nucleus of protons and neutrons, surrounded by electrons. Stars fuse atoms together to release enormous energy."
+  },
+  {
+    "word": "muons",
+    "song": "How to Disappear",
+    "artist": "Lana Del Rey",
+    "spotify": "https://open.spotify.com/search/How+to+Disappear+Lana+Del+Rey",
+    "apple": "https://music.apple.com/us/search?term=How+to+Disappear+Lana+Del+Rey",
+    "youtube": "https://music.youtube.com/search?q=How+to+Disappear+Lana+Del+Rey",
+    "articleUrl": "https://en.wikipedia.org/wiki/Muon",
+    "explanation": "Muons are elementary particles similar to electrons but ~207 times heavier. They rain down on Earth from cosmic ray interactions in the upper atmosphere."
+  },
+  {
+    "word": "gamma",
+    "song": "Radioactive",
+    "artist": "Imagine Dragons",
+    "spotify": "https://open.spotify.com/search/Radioactive+Imagine+Dragons",
+    "apple": "https://music.apple.com/us/search?term=Radioactive+Imagine+Dragons",
+    "youtube": "https://music.youtube.com/search?q=Radioactive+Imagine+Dragons",
+    "articleUrl": "https://en.wikipedia.org/wiki/Gamma_ray",
+    "explanation": "Gamma rays are the most energetic form of electromagnetic radiation, produced by radioactive decay and extreme astrophysical events like gamma-ray bursts and supernovae."
+  },
+  {
+    "word": "hertz",
+    "song": "Baby Don't Hurt Me",
+    "artist": "David Guetta, Anne-Marie, Coi Leray",
+    "spotify": "https://open.spotify.com/search/Baby+Don%27t+Hurt+Me+David+Guetta%2C+Anne-Marie%2C+Coi+Leray",
+    "apple": "https://music.apple.com/us/search?term=Baby+Don%27t+Hurt+Me+David+Guetta%2C+Anne-Marie%2C+Coi+Leray",
+    "youtube": "https://music.youtube.com/search?q=Baby+Don%27t+Hurt+Me+David+Guetta%2C+Anne-Marie%2C+Coi+Leray",
+    "articleUrl": "https://en.wikipedia.org/wiki/Hertz",
+    "explanation": "Hertz (Hz) is the SI unit of frequency, equal to one cycle per second. Radio waves, light, and gravitational waves are all measured in hertz."
+  },
+  {
+    "word": "laser",
+    "song": "Blinding Lights",
+    "artist": "The Weeknd",
+    "spotify": "https://open.spotify.com/search/Blinding+Lights+The+Weeknd",
+    "apple": "https://music.apple.com/us/search?term=Blinding+Lights+The+Weeknd",
+    "youtube": "https://music.youtube.com/search?q=Blinding+Lights+The+Weeknd",
+    "articleUrl": "https://en.wikipedia.org/wiki/Laser",
+    "explanation": "LASER stands for Light Amplification by Stimulated Emission of Radiation. Lasers are used in astronomy for adaptive optics, LIDAR, and laser-ranging of the Moon."
+  },
+  {
+    "word": "light",
+    "song": "Fast as You Can",
+    "artist": "Fiona Apple",
+    "spotify": "https://open.spotify.com/search/Fast+as+You+Can+Fiona+Apple",
+    "apple": "https://music.apple.com/us/search?term=Fast+as+You+Can+Fiona+Apple",
+    "youtube": "https://music.youtube.com/search?q=Fast+as+You+Can+Fiona+Apple",
+    "articleUrl": "https://en.wikipedia.org/wiki/Light",
+    "explanation": "Light is electromagnetic radiation that travels at ~299,792 km/s in a vacuum — the universal speed limit. A light-year is the distance light travels in one year (~9.46 trillion km)."
+  },
+  {
+    "word": "venus",
+    "song": "God Is a Woman",
+    "artist": "Ariana Grande",
+    "spotify": "https://open.spotify.com/search/God+Is+a+Woman+Ariana+Grande",
+    "apple": "https://music.apple.com/us/search?term=God+Is+a+Woman+Ariana+Grande",
+    "youtube": "https://music.youtube.com/search?q=God+Is+a+Woman+Ariana+Grande",
+    "articleUrl": "https://en.wikipedia.org/wiki/Venus",
+    "explanation": "Venus is the second planet from the Sun and the hottest planet in the Solar System due to a runaway greenhouse effect. It rotates retrograde (backwards) compared to most planets."
+  },
+  {
+    "word": "earth",
+    "song": "What a Wonderful World",
+    "artist": "Louis Armstrong",
+    "spotify": "https://open.spotify.com/search/What+a+Wonderful+World+Louis+Armstrong",
+    "apple": "https://music.apple.com/us/search?term=What+a+Wonderful+World+Louis+Armstrong",
+    "youtube": "https://music.youtube.com/search?q=What+a+Wonderful+World+Louis+Armstrong",
+    "articleUrl": "https://en.wikipedia.org/wiki/Earth",
+    "explanation": "Earth is the third planet from the Sun and the only known planet to harbour life. It has a protective magnetic field, liquid water oceans, and a nitrogen-oxygen atmosphere."
+  },
+  {
+    "word": "quark",
+    "song": "Up and Down",
+    "artist": "Doja Cat",
+    "spotify": "https://open.spotify.com/search/Up+and+Down+Doja+Cat",
+    "apple": "https://music.apple.com/us/search?term=Up+and+Down+Doja+Cat",
+    "youtube": "https://music.youtube.com/search?q=Up+and+Down+Doja+Cat",
+    "articleUrl": "https://en.wikipedia.org/wiki/Quark",
+    "explanation": "Quarks are fundamental particles that combine to form hadrons like protons and neutrons. They are never found alone — a property called confinement."
+  },
+  {
+    "word": "alien",
+    "song": "Life on Mars?",
+    "artist": "David Bowie",
+    "spotify": "https://open.spotify.com/search/Life+on+Mars%3F+David+Bowie",
+    "apple": "https://music.apple.com/us/search?term=Life+on+Mars%3F+David+Bowie",
+    "youtube": "https://music.youtube.com/search?q=Life+on+Mars%3F+David+Bowie",
+    "articleUrl": "https://en.wikipedia.org/wiki/Extraterrestrial_life",
+    "explanation": "Extraterrestrial life, or 'aliens', refers to life that may exist outside Earth. No confirmed evidence exists yet, but the universe's vast scale makes this one of astronomy's greatest open questions."
+  },
+  {
+    "word": "ceres",
+    "song": "Jupiter",
+    "artist": "The Marías",
+    "spotify": "https://open.spotify.com/search/Jupiter+The+Mar%C3%ADas",
+    "apple": "https://music.apple.com/us/search?term=Jupiter+The+Mar%C3%ADas",
+    "youtube": "https://music.youtube.com/search?q=Jupiter+The+Mar%C3%ADas",
+    "articleUrl": "https://en.wikipedia.org/wiki/Ceres_(dwarf_planet)",
+    "explanation": "Ceres is the largest object in the asteroid belt and the closest dwarf planet to the Sun. It was the first asteroid discovered, in 1801, by Giuseppe Piazzi."
+  },
+  {
+    "word": "pluto",
+    "song": "Lonely Song",
+    "artist": "Malcolm Todd",
+    "spotify": "https://open.spotify.com/search/Lonely+Song+Malcolm+Todd",
+    "apple": "https://music.apple.com/us/search?term=Lonely+Song+Malcolm+Todd",
+    "youtube": "https://music.youtube.com/search?q=Lonely+Song+Malcolm+Todd",
+    "articleUrl": "https://en.wikipedia.org/wiki/Pluto",
+    "explanation": "Pluto is a dwarf planet in the Kuiper Belt. Discovered in 1930 and reclassified in 2006, it has five moons. NASA's New Horizons probe revealed its stunning heart-shaped plain in 2015."
+  },
+  {
+    "word": "nadir",
+    "song": "Space Song",
+    "artist": "Beach House",
+    "spotify": "https://open.spotify.com/search/Space+Song+Beach+House",
+    "apple": "https://music.apple.com/us/search?term=Space+Song+Beach+House",
+    "youtube": "https://music.youtube.com/search?q=Space+Song+Beach+House",
+    "articleUrl": "https://en.wikipedia.org/wiki/Nadir",
+    "explanation": "The nadir is the point on the celestial sphere directly below an observer — the opposite of the zenith. It also refers to the lowest point in a planet's orbit or an object's path."
+  },
+  {
+    "word": "probe",
+    "song": "Somewhere Only We Know",
+    "artist": "Keane",
+    "spotify": "https://open.spotify.com/search/Somewhere+Only+We+Know+Keane",
+    "apple": "https://music.apple.com/us/search?term=Somewhere+Only+We+Know+Keane",
+    "youtube": "https://music.youtube.com/search?q=Somewhere+Only+We+Know+Keane",
+    "articleUrl": "https://en.wikipedia.org/wiki/Space_probe",
+    "explanation": "A space probe is an uncrewed spacecraft sent beyond Earth orbit to study celestial bodies. Notable probes include Voyager 1 & 2, which have left the Solar System."
+  },
+  {
+    "word": "optic",
+    "song": "Image",
+    "artist": "Magdalena Bay",
+    "spotify": "https://open.spotify.com/search/Image+Magdalena+Bay",
+    "apple": "https://music.apple.com/us/search?term=Image+Magdalena+Bay",
+    "youtube": "https://music.youtube.com/search?q=Image+Magdalena+Bay",
+    "articleUrl": "https://en.wikipedia.org/wiki/Optics",
+    "explanation": "Optics is the branch of physics that studies light behaviour. Telescopes use optical principles — reflection, refraction, and diffraction — to gather and focus light from distant objects."
+  },
+  {
+    "word": "orion",
+    "song": "Starman",
+    "artist": "David Bowie",
+    "spotify": "https://open.spotify.com/search/Starman+David+Bowie",
+    "apple": "https://music.apple.com/us/search?term=Starman+David+Bowie",
+    "youtube": "https://music.youtube.com/search?q=Starman+David+Bowie",
+    "articleUrl": "https://en.wikipedia.org/wiki/Orion_(constellation)",
+    "explanation": "Orion is one of the most recognisable constellations in the night sky, visible from both hemispheres. It contains stars like Betelgeuse and Rigel, and the famous Orion Nebula (M42)."
+  },
+  {
+    "word": "titan",
+    "song": "Moon",
+    "artist": "Daniel Caesar",
+    "spotify": "https://open.spotify.com/search/Moon+Daniel+Caesar",
+    "apple": "https://music.apple.com/us/search?term=Moon+Daniel+Caesar",
+    "youtube": "https://music.youtube.com/search?q=Moon+Daniel+Caesar",
+    "articleUrl": "https://en.wikipedia.org/wiki/Titan_(moon)",
+    "explanation": "Titan is Saturn's largest moon and the second-largest in the Solar System. It has a thick nitrogen atmosphere, methane lakes, and is considered a prime candidate for extraterrestrial life."
+  },
+  {
+    "word": "libra",
+    "song": "We Fell in Love in October",
+    "artist": "girl in red",
+    "spotify": "https://open.spotify.com/search/We+Fell+in+Love+in+October+girl+in+red",
+    "apple": "https://music.apple.com/us/search?term=We+Fell+in+Love+in+October+girl+in+red",
+    "youtube": "https://music.youtube.com/search?q=We+Fell+in+Love+in+October+girl+in+red",
+    "articleUrl": "https://en.wikipedia.org/wiki/Libra_(constellation)",
+    "explanation": "Libra is a zodiacal constellation representing a set of scales. It contains Gliese 581, a red dwarf with a planetary system that once sparked debate about habitable exoplanets."
+  },
+  {
+    "word": "aster",
+    "song": "A Sky Full of Stars",
+    "artist": "Coldplay",
+    "spotify": "https://open.spotify.com/search/A+Sky+Full+of+Stars+Coldplay",
+    "apple": "https://music.apple.com/us/search?term=A+Sky+Full+of+Stars+Coldplay",
+    "youtube": "https://music.youtube.com/search?q=A+Sky+Full+of+Stars+Coldplay",
+    "articleUrl": "https://en.wiktionary.org/wiki/aster",
+    "explanation": "Aster- is a Greek prefix meaning 'star'. It forms the root of words like asteroid, astronomy, and astrophysics — literally 'star-writing' and 'star-physics'."
+  },
+  {
+    "word": "fermi",
+    "song": "All by Myself",
+    "artist": "Celine Dion",
+    "spotify": "https://open.spotify.com/search/All+by+Myself+Celine+Dion",
+    "apple": "https://music.apple.com/us/search?term=All+by+Myself+Celine+Dion",
+    "youtube": "https://music.youtube.com/search?q=All+by+Myself+Celine+Dion",
+    "articleUrl": "https://en.wikipedia.org/wiki/Fermi_paradox",
+    "explanation": "The Fermi Gamma-ray Space Telescope (FGST) studies gamma-ray astrophysics. The Fermi Paradox — 'where is everybody?' — ponders the absence of detected extraterrestrial civilizations."
+  },
+  {
+    "word": "farad",
+    "song": "Thunderstruck",
+    "artist": "AC/DC",
+    "spotify": "https://open.spotify.com/search/Thunderstruck+AC%2FDC",
+    "apple": "https://music.apple.com/us/search?term=Thunderstruck+AC%2FDC",
+    "youtube": "https://music.youtube.com/search?q=Thunderstruck+AC%2FDC",
+    "articleUrl": "https://en.wikipedia.org/wiki/Farad",
+    "explanation": "The farad (F) is the SI unit of electrical capacitance. Capacitors play roles in radio telescopes, electronics in spacecraft, and detector circuits used in astronomy."
+  },
+  {
+    "word": "pixel",
+    "song": "Digital Love",
+    "artist": "Daft Punk",
+    "spotify": "https://open.spotify.com/search/Digital+Love+Daft+Punk",
+    "apple": "https://music.apple.com/us/search?term=Digital+Love+Daft+Punk",
+    "youtube": "https://music.youtube.com/search?q=Digital+Love+Daft+Punk",
+    "articleUrl": "https://en.wikipedia.org/wiki/Pixel",
+    "explanation": "A pixel is the smallest discrete element of a digital image. Astronomical CCD cameras and CMOS detectors are graded by pixel size — directly affecting resolution and field of view."
+  },
+  {
+    "word": "focus",
+    "song": "Clarity",
+    "artist": "Zedd",
+    "spotify": "https://open.spotify.com/search/Clarity+Zedd",
+    "apple": "https://music.apple.com/us/search?term=Clarity+Zedd",
+    "youtube": "https://music.youtube.com/search?q=Clarity+Zedd",
+    "articleUrl": "https://en.wikipedia.org/wiki/Focus_(optics)",
+    "explanation": "In optics, the focus is the point where light rays converge after passing through a lens or reflecting off a mirror. Telescope design revolves around bringing starlight to a precise focus."
+  },
+  {
+    "word": "polar",
+    "song": "Opposite",
+    "artist": "Sabrina Carpenter",
+    "spotify": "https://open.spotify.com/search/Opposite+Sabrina+Carpenter",
+    "apple": "https://music.apple.com/us/search?term=Opposite+Sabrina+Carpenter",
+    "youtube": "https://music.youtube.com/search?q=Opposite+Sabrina+Carpenter",
+    "articleUrl": "https://en.wikipedia.org/wiki/Polar_orbit",
+    "explanation": "A polar orbit passes over both poles of a planet. Many Earth-observation and weather satellites use polar orbits to achieve full global coverage."
+  },
+  {
+    "word": "rover",
+    "song": "Kryptonite",
+    "artist": "Don Toliver",
+    "spotify": "https://open.spotify.com/search/Kryptonite+Don+Toliver",
+    "apple": "https://music.apple.com/us/search?term=Kryptonite+Don+Toliver",
+    "youtube": "https://music.youtube.com/search?q=Kryptonite+Don+Toliver",
+    "articleUrl": "https://en.wikipedia.org/wiki/Rover_(space_exploration)",
+    "explanation": "A planetary rover is a space vehicle designed to move across the surface of a planet or other celestial body. Mars rovers include Curiosity and Perseverance."
+  },
+  {
+    "word": "helix",
+    "song": "DNA.",
+    "artist": "Kendrick Lamar",
+    "spotify": "https://open.spotify.com/search/DNA.+Kendrick+Lamar",
+    "apple": "https://music.apple.com/us/search?term=DNA.+Kendrick+Lamar",
+    "youtube": "https://music.youtube.com/search?q=DNA.+Kendrick+Lamar",
+    "articleUrl": "https://en.wikipedia.org/wiki/Helix_Nebula",
+    "explanation": "The Helix Nebula (NGC 7293) is one of the closest planetary nebulae to Earth. Its ring-like structure gave it the nickname 'Eye of God'. Helical structures also appear in astrophysical jets."
+  },
+  {
+    "word": "dwarf",
+    "song": "Snow White",
+    "artist": "Laufey",
+    "spotify": "https://open.spotify.com/search/Snow+White+Laufey",
+    "apple": "https://music.apple.com/us/search?term=Snow+White+Laufey",
+    "youtube": "https://music.youtube.com/search?q=Snow+White+Laufey",
+    "articleUrl": "https://en.wikipedia.org/wiki/Dwarf_planet",
+    "explanation": "Dwarf planets are Solar System bodies that orbit the Sun, have a nearly round shape due to gravity, but have not cleared their orbital neighbourhood. Examples include Pluto and Ceres."
+  },
+  {
+    "word": "radio",
+    "song": "Transmission",
+    "artist": "Joy Division",
+    "spotify": "https://open.spotify.com/search/Transmission+Joy+Division",
+    "apple": "https://music.apple.com/us/search?term=Transmission+Joy+Division",
+    "youtube": "https://music.youtube.com/search?q=Transmission+Joy+Division",
+    "articleUrl": "https://en.wikipedia.org/wiki/Radio_astronomy",
+    "explanation": "Radio astronomy studies celestial objects by detecting radio waves they emit. Karl Jansky discovered cosmic radio waves in 1932, opening a new window on the universe."
+  },
+  {
+    "word": "stars",
+    "song": "Astronomy",
+    "artist": "Conan Gray",
+    "spotify": "https://open.spotify.com/search/Astronomy+Conan+Gray",
+    "apple": "https://music.apple.com/us/search?term=Astronomy+Conan+Gray",
+    "youtube": "https://music.youtube.com/search?q=Astronomy+Conan+Gray",
+    "articleUrl": "https://en.wikipedia.org/wiki/Star",
+    "explanation": "Stars are massive, luminous spheres of plasma held together by gravity. Nuclear fusion in their cores converts hydrogen to helium, releasing the energy that makes them shine."
+  },
+  {
+    "word": "space",
+    "song": "Cosmic Love",
+    "artist": "Florence + The Machine",
+    "spotify": "https://open.spotify.com/search/Cosmic+Love+Florence+%2B+The+Machine",
+    "apple": "https://music.apple.com/us/search?term=Cosmic+Love+Florence+%2B+The+Machine",
+    "youtube": "https://music.youtube.com/search?q=Cosmic+Love+Florence+%2B+The+Machine",
+    "articleUrl": "https://en.wikipedia.org/wiki/Outer_space",
+    "explanation": "Outer space, or simply space, is the expanse that exists beyond Earth's atmosphere. It is largely a vacuum, containing dust, gas, cosmic rays, and billions of galaxies."
+  }
+]

@@ -27,34 +27,37 @@ Repeated letters follow standard Wordle rules: a letter only highlights as many 
 
 ## Tech stack
 
-Static site—no build step:
+Client-side UI with secure serverless backend:
 
-| File | Role |
-|------|------|
+| File / Folder | Role |
+|---|---|
 | `index.html` | Page structure, modals, hint UI |
-| `script.js` | Core Wordle gameplay (from [Wordle-Vanilla](https://github.com/doeixd/Wordle-Vanilla)) |
-| `stardle.js` | Starfield, CSV loading, IST daily word, hints, Stardle-only hooks |
+| `script.js` | Core Wordle gameplay with server-side validation |
+| `stardle.js` | Starfield, daily hint loader, Stardle-only hooks & popup |
 | `stardle.css` | Astronomy theme and layout |
 | `styles.css` | Base Wordle styles |
-| `possibleWords.js` | Valid guess dictionary |
-| `astrophysics_wordle_song_links-4.csv` | Daily answers, songs, and link metadata |
+| `possibleWords.js` | Fast client-side 5-letter dictionary validation |
+| `api/puzzle-info.js` | Public endpoint for puzzle number, date, and musical hint (never returns word) |
+| `api/check-guess.js` | Secure endpoint that evaluates tile colors (reveals word only upon game completion) |
+| `api/_data/words.json` | Protected server-side astrophysics word database |
+| `server.js` | Standalone zero-dependency local Node.js development server |
+| `vercel.json` | Vercel deployment and security routing rules |
 
 ## Run locally
 
-The game loads the word list with `fetch`, so open it through a local HTTP server (not `file://`).
+Run the local server with Node.js (no external packages required):
 
 ```bash
-cd Stardle
-python3 -m http.server 8080
+npm start
+# or: node server.js
 ```
 
-Then visit [http://localhost:8080](http://localhost:8080).
-
-Other options: `npx serve .`, VS Code Live Server, or any static host.
+Then visit [http://localhost:8000](http://localhost:8000).
 
 ## Deploy
 
-Upload the project root as static files. Ensure `astrophysics_wordle_song_links-4.csv` is served from the same origin as `index.html`.
+### Vercel (Recommended)
+Push to GitHub and import the repository into Vercel. Vercel automatically deploys the frontend as static files and the `/api` directory as Serverless Functions with zero configuration. All data files in `api/_data/` are automatically protected.
 
 ## Credits
 

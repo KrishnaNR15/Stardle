@@ -1,0 +1,31 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "routes": [
+    {
+      "src": "/api/puzzle-info",
+      "dest": "/api/puzzle-info.js"
+    },
+    {
+      "src": "/api/check-guess",
+      "dest": "/api/check-guess.js"
+    },
+    {
+      "src": "/(.*)\\.csv",
+      "status": 403
+    },
+    {
+      "src": "/(.*)\\.md",
+      "status": 403
+    },
+    {
+      "src": "/api/_data/(.*)",
+      "status": 403
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
+}
+

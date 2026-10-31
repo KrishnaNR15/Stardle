@@ -4,20 +4,17 @@ const possibleWordsWorker = setup();
 // GAME STATE:
 // --------------------------------------------------------
 
-const localStorageGameState = () => {
-  try {
-    const savedState = localStorage.getItem('gameState');
-    return savedState ? JSON.parse(savedState) : null;
-  } catch (e) {
-    console.warn('Could not load the saved game state:', e);
-    return null;
-  }
+const getTodayISTString = () => {
+  const istDate = new Date(Date.now() + 330 * 60 * 1000);
+  return istDate.toISOString().slice(0, 10);
 };
 
 const defaultGameState = {
+  date: getTodayISTString(),
   wordle: '',
+  token: null,
   //state can be one of: rightSpot, wrongSpot, wrongLetter, gusssed, or null
-  gameBoard: Array.from({length: 30}, _ => ({letter: null, state: null})),
+  gameBoard: Array.from({ length: 30 }, _ => ({ letter: null, state: null })),
   pointer: 0,
   checked: [null, null, null, null, null, null],
   won: false,
@@ -34,6 +31,39 @@ const defaultUserState = {
     currentStreak: 0,
     maxStreak: 0,
   },
+};
+
+const localStorageGameState = () => {
+  try {
+    const savedState = localStorage.getItem('gameState');
+    if (!savedState) return null;
+    const parsed = JSON.parse(savedState);
+    const todayIST = getTodayISTString();
+    const lastPlayedDate = localStorage.getItem('stardleLastDate');
+
+    // If the saved state is from a previous day (or midnight passed), reset to a clean board!
+    const recordedDate = parsed.date || lastPlayedDate;
+    if (recordedDate && recordedDate !== todayIST) {
+      console.log('[Stardle] New day detected on load (' + recordedDate + ' -> ' + todayIST + '). Resetting to clean board.');
+      const freshState = {
+        ...defaultGameState,
+        ...defaultUserState,
+        stats: parsed.stats || defaultUserState.stats,
+        winHistory: parsed.winHistory || defaultUserState.winHistory,
+        gameHistory: parsed.gameHistory || defaultUserState.gameHistory,
+        date: todayIST,
+      };
+      try {
+        localStorage.setItem('gameState', JSON.stringify(freshState));
+        localStorage.setItem('stardleLastDate', todayIST);
+      } catch (_) {}
+      return freshState;
+    }
+    return parsed;
+  } catch (e) {
+    console.warn('Could not load the saved game state:', e);
+    return null;
+  }
 };
 
 var State = { ...defaultGameState, ...defaultUserState };
@@ -84,7 +114,7 @@ function render(actions, effects = []) {
       return Object.assign(clone(oldGameState), cur(clone(acc)));
     }, clone(State));
   State = newGameState;
-  
+
   const effectsToRun = [...effects, paint, persist];
   (async () => {
     try {
@@ -123,14 +153,85 @@ function backspace() {
   });
 }
 
-function enter() {
-  const { checked, wordle, gameBoard } = State;
-  const guess = guesses(gameBoard)[activeRow({ checked })];
+let isCheckingGuess = false;
+
+async function enter() {
+  if (isCheckingGuess) return;
+  const { checked, gameBoard } = State;
+  const currentRow = activeRow({ checked });
+  if (currentRow > 5) return;
+
+  const guess = guesses(gameBoard)[currentRow];
+  if (!guess || guess.length !== 5) return;
   if (possibleWords && !possibleWords.has(guess)) return badWord();
-  if (guesses(gameBoard).filter(g => g == guess).length > 1) return badWord('Already guessed')
-  if (guess == wordle) return won();
-  if (activeRow() == 5) return lost();
-  return check();
+  if (guesses(gameBoard).filter((g) => g == guess).length > 1) return badWord('Already guessed');
+
+  isCheckingGuess = true;
+  try {
+    const token = State.token || window.stardleToken || null;
+    const res = await fetch('/api/check-guess', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ guess, token }),
+    });
+
+    if (!res.ok) {
+      throw new Error(`Server returned status ${res.status}`);
+    }
+
+    const data = await res.json();
+    if (!data.valid) {
+      isCheckingGuess = false;
+      return badWord(data.message || 'Not in word list');
+    }
+
+    if (data.token) {
+      window.stardleToken = data.token;
+      State.token = data.token;
+    }
+
+    const validityMask = data.eval;
+
+    if (data.won) {
+      if (data.solution) {
+        window.stardleSolution = data.solution;
+        State.wordle = data.solution.word;
+        State.solution = data.solution;
+      }
+      return wonWithMask(validityMask);
+    } else if (currentRow >= 5) {
+      if (data.solution) {
+        window.stardleSolution = data.solution;
+        State.wordle = data.solution.word;
+        State.solution = data.solution;
+      }
+      return lostWithMask(validityMask);
+    } else {
+      return checkWithMask(validityMask);
+    }
+  } catch (err) {
+    console.error('[Stardle] Failed to validate guess:', err);
+    showToast('Network error, please try again', 2);
+  } finally {
+    isCheckingGuess = false;
+  }
+}
+
+function applyMaskToBoard(gameState, validityMask) {
+  const row = Math.min(activeRow(gameState), 5);
+  validityMask.forEach((state, idx) => {
+    let tileIdx = idx + row * 5;
+    gameState.gameBoard[tileIdx].state = state;
+  });
+  return gameState.gameBoard;
+}
+
+function checkWithMask(validityMask) {
+  return render((gameState) => {
+    gameState.gameBoard = applyMaskToBoard(gameState, validityMask);
+    gameState.checked[activeRow(gameState)] = true;
+    return gameState;
+  }, animateSumbittedRow);
 }
 
 function getCheckedGameboard(gameState) {
@@ -164,7 +265,7 @@ function setStats() {
         Math.round(
           (winHistory.reduce((acc, cur) => acc + cur, 0) / stats.gamesPlayed) * 100 || 0
         );
-      
+
       let currentStreak = 0
       for (let game of [...gameHistory].reverse()) {
         if (!game.won) break
@@ -174,10 +275,46 @@ function setStats() {
 
       if (stats.currentStreak > stats.maxStreak)
         stats.maxStreak = stats.currentStreak;
-      
-        return { stats };
+
+      return { stats };
     },
     [paintStats, showGraph]
+  );
+}
+
+function wonWithMask(validityMask) {
+  var winningRow;
+  return render(
+    (gameState) => {
+      let {
+        checked,
+        winHistory,
+        gameHistory,
+        won,
+        wordle,
+        gameBoard,
+        pointer,
+        solution,
+      } = gameState;
+      gameBoard = applyMaskToBoard(gameState, validityMask);
+      checked[activeRow(gameState)] = true;
+      winningRow = activeRow({ checked }) - 1;
+      won = true;
+      winHistory[winningRow]++;
+      pointer++;
+      const finalWord = wordle || window.stardleSolution?.word || '';
+      const finalSolution = solution || window.stardleSolution || null;
+      gameHistory.push({ wordle: finalWord, gameBoard, won, checked, solution: finalSolution });
+      return { winHistory, won, gameHistory, pointer, gameBoard, wordle: finalWord, solution: finalSolution };
+    },
+    [
+      animateSumbittedRow,
+      (oldGameState, newGameState) => {
+        window.recordStardleGameResult?.({ won: true, guesses: winningRow + 1 });
+        const randomPraise = generateWinningMessage(winningRow);
+        showToast(randomPraise, 2.5, () => showStatsModal(oldGameState, newGameState));
+      },
+    ]
   );
 }
 
@@ -209,6 +346,28 @@ function won() {
         window.recordStardleGameResult?.({ won: true, guesses: winningRow + 1 });
         const randomPraise = generateWinningMessage(winningRow);
         showToast(randomPraise, 2.5, () => showStatsModal(oldGameState, newGameState));
+      },
+    ]
+  );
+}
+
+function lostWithMask(validityMask) {
+  return render(
+    (gameState) => {
+      let { checked, wordle, gameHistory, gameBoard, won, pointer, solution } = gameState;
+      checked[5] = true;
+      gameBoard = applyMaskToBoard(gameState, validityMask);
+      const finalWord = wordle || window.stardleSolution?.word || '';
+      const finalSolution = solution || window.stardleSolution || null;
+      gameHistory.push({ wordle: finalWord, gameBoard, won, checked, pointer, solution: finalSolution });
+      return { checked, gameHistory, gameBoard, wordle: finalWord, solution: finalSolution };
+    },
+    [
+      animateSumbittedRow,
+      ({ wordle }) => {
+        const finalWord = wordle || window.stardleSolution?.word || '';
+        window.recordStardleGameResult?.({ won: false, guesses: 6 });
+        showToast(finalWord, 2.5, showStatsModal, true);
       },
     ]
   );
@@ -261,10 +420,10 @@ function update(newState) {
   )
 }
 
-function toggleColorScheme () {
-  return render (({colorScheme}) => {
+function toggleColorScheme() {
+  return render(({ colorScheme }) => {
     colorScheme = colorScheme == 'dark' ? 'light' : 'dark'
-    return {colorScheme}
+    return { colorScheme }
   })
 }
 
@@ -381,10 +540,10 @@ async function animateSumbittedRow(oldState, newState) {
   let done = await new Promise((resolve, reject) => {
     sumbittedRow.forEach((tile, idx) => {
       tile.classList.remove('guessedLetter');
-      const styles = getValidityStyles(activeRow(oldState), idx, oldState);
+      const styles = getValidityStyles(activeRow(oldState), idx, newState);
       tile.style.perspective = '500px';
       tile.style.transformStyle = 'preserve-3d';
-      
+
       tile.animate(
         [
           { transform: 'rotate3d(50, 0, 0, -180deg)', ...styles },
@@ -392,7 +551,7 @@ async function animateSumbittedRow(oldState, newState) {
         ],
         {
           duration: 650,
-          delay:   (idx *  300 ) + 50,
+          delay: (idx * 300) + 50,
           easing: 'ease-in-out',
         }
       ).onfinish = async (_) => {
@@ -435,7 +594,11 @@ async function showGraph(_, { winHistory }) {
 async function persist(_, newGameState) {
   if (!newGameState.persist) return;
   try {
-    localStorage.setItem('gameState', JSON.stringify(newGameState));
+    const stateToSave = {
+      ...newGameState,
+      date: newGameState.date || getTodayISTString()
+    };
+    localStorage.setItem('gameState', JSON.stringify(stateToSave));
   } catch (e) {
     console.warn('Could not save the game state:', e);
   }
@@ -466,8 +629,8 @@ function showToast(msg, time = 1, cb = () => { }, persist = false, style = '') {
   toastContainer.prepend(toastTemplate);
   const toast = toastContainer.firstChild;
 
-  setTimeout(function() {
-    if (!persist) 
+  setTimeout(function () {
+    if (!persist)
       toast.animate([{ opacity: '1' }, { opacity: '0' }], 400).onfinish = () => {
         toastContainer.removeChild(toast);
       };
@@ -476,17 +639,17 @@ function showToast(msg, time = 1, cb = () => { }, persist = false, style = '') {
 }
 
 function getValidityStyles(rowNum = activeRow(), idx, gameState = State) {
-  const stylesMask = getRowValidityMask(rowNum, gameState);
-  return stylesMask.map((style, idx) => {
-    const styles = {
-      borderColor: 'transparent',
-      color: '#ffffff',
-      backgroundColor: '#334155',
-    };
-    if (style == 'rightSpot') styles.backgroundColor = '#22c55e';
-    if (style == 'wrongSpot') styles.backgroundColor = '#eab308';
-    return styles;
-  })[idx];
+  const tileIdx = rowNum * 5 + idx;
+  const tile = gameState.gameBoard && gameState.gameBoard[tileIdx];
+  const style = tile?.state || (gameState.wordle ? getRowValidityMask(rowNum, gameState)[idx] : 'wrongLetter');
+  const styles = {
+    borderColor: 'transparent',
+    color: '#ffffff',
+    backgroundColor: '#334155',
+  };
+  if (style == 'rightSpot') styles.backgroundColor = '#22c55e';
+  if (style == 'wrongSpot') styles.backgroundColor = '#eab308';
+  return styles;
 }
 
 function setStylesOnElement(styles, element) {
@@ -508,7 +671,7 @@ function closeStatsModal(e) {
   $('h1').classList.remove('blur');
   $('#game').classList.remove('blur');
   $('#game').setAttribute('aria-hidden', 'false');
-  $$('[id^="bar"]').forEach((bar) => {bar.style.height = 0; bar.style.backgroundColor = 'var(--winHistoryBarColor)'});
+  $$('[id^="bar"]').forEach((bar) => { bar.style.height = 0; bar.style.backgroundColor = 'var(--winHistoryBarColor)' });
   $('stats-container').setAttribute('aria-hidden', 'true');
   $('stats').classList = '';
   $('stats').animate(
@@ -520,7 +683,7 @@ function closeStatsModal(e) {
 }
 
 function share() {
-    if (!State.won && !State.checked[5]) {
+  if (!State.won && !State.checked[5]) {
     showToast('Finish the game first!', 2, null, null, 'z-index:4');
     return;
   }
@@ -681,7 +844,7 @@ function getEmojiGameBoard() {
   const tilesToShow = Math.min((submittedRows + 1) * 5, 30);
   return State.gameBoard.slice(0, tilesToShow).reduce((acc, cur, idx) => {
     const newLine = (idx + 1) % 5 === 0 ? '\n' : '';
-    const bgColor = getRowValidityMask(rowNum(idx), State)[idx % 5];
+    const bgColor = cur?.state || 'wrongLetter';
     if (bgColor === 'rightSpot') return acc + '🟩' + newLine;
     if (bgColor === 'wrongSpot') return acc + '🟨' + newLine;
     return acc + '⬜' + newLine;
@@ -693,17 +856,16 @@ function setup() {
   window
     .matchMedia('(prefers-color-scheme: dark)')
     .addEventListener('change', (e) => {
-      update({...State, colorScheme: (e.matches ? 'dark' : 'light')})
+      update({ ...State, colorScheme: (e.matches ? 'dark' : 'light') })
     });
 
   const possibleWordsWorker = new Worker('possibleWords.js');
   possibleWordsWorker.postMessage('');
-  possibleWordsWorker.onmessage = function(e) {
+  possibleWordsWorker.onmessage = function (e) {
     if (typeof e.data !== 'object') return;
-    if (!State.wordle) State.wordle = e.data.randomWord;
     possibleWords = e.data.possibleWordsMap;
   };
-  
+
 
   return possibleWordsWorker;
 }

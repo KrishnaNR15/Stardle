@@ -111,97 +111,105 @@
 
 
 /* ==============================================================
-   2. CSV PARSING — load astrophysics word list
+   2. PUZZLE LOADING — fetch daily hint and metadata from API
    ============================================================== */
 
-/**
- * Columns in the CSV (1-indexed for humans, 0-indexed internally):
- *   0: Word
- *   1: Song
- *   2: Artist
- *   3: Spotify Search URL
- *   4: Apple Music Search URL
- *   5: YouTube Music Search URL
- *   6: Meaning Article URL
- */
-
-let stardleWordData = []; // array of parsed row objects
-
-async function loadStardleCSV() {
+async function loadStardlePuzzle() {
   try {
-    const resp = await fetch('astrophysics_wordle_song_links-4.csv');
-    const text = await resp.text();
-    stardleWordData = parseCSV(text);
-    injectTodaysWord();
-    addCSVWordsToDictionary();
+    const resp = await fetch('/api/puzzle-info');
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    window.stardlePuzzleInfo = data;
+    if (data.hint) {
+      updateHintPanel(data.hint);
+    }
+    handleDailyPuzzleState(data.date);
   } catch (e) {
-    console.warn('[Stardle] Could not load CSV:', e);
+    console.warn('[Stardle] Could not load puzzle info:', e);
   }
 }
 
-function addCSVWordsToDictionary() {
-  if (!stardleWordData.length) return;
-  const interval = setInterval(() => {
+function handleDailyPuzzleState(todayIST) {
+  if (!todayIST) return;
+  const lastPlayedDate = safeStorageGet('stardleLastDate');
+  const saved = (() => {
     try {
-      if (typeof possibleWords !== 'undefined' && possibleWords && typeof possibleWords.set === 'function') {
-        stardleWordData.forEach(row => {
-          if (row.word && row.word.length === 5) {
-            possibleWords.set(row.word.toLowerCase(), row.word.toLowerCase());
-          }
-        });
-        clearInterval(interval);
-      }
+      const savedState = safeStorageGet('gameState');
+      return savedState ? JSON.parse(savedState) : null;
     } catch(e) {
-      clearInterval(interval);
+      return null;
     }
-  }, 100);
-}
+  })();
 
-/**
- * Minimal CSV parser that handles:
- *   - Quoted fields (including embedded commas)
- *   - Windows/Unix line endings
- *   - Skips the header row
- */
-function parseCSV(text) {
-  const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
-  const rows = [];
-  for (let i = 1; i < lines.length; i++) {
-    const line = lines[i].trim();
-    if (!line) continue;
-    const fields = splitCSVLine(line);
-    if (fields.length < 7) continue;
-    rows.push({
-      word:       fields[0].trim().toLowerCase(),
-      song:       fields[1].trim(),
-      artist:     fields[2].trim(),
-      spotify:    fields[3].trim(),
-      apple:      fields[4].trim(),
-      youtube:    fields[5].trim(),
-      articleUrl: fields[6].trim(),
-    });
-  }
-  return rows;
-}
+  const isNewDay = (lastPlayedDate && lastPlayedDate !== todayIST) || (saved?.date && saved.date !== todayIST);
 
-function splitCSVLine(line) {
-  const result = [];
-  let cur = '';
-  let inQuotes = false;
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (ch === '"') {
-      if (inQuotes && line[i + 1] === '"') { cur += '"'; i++; }
-      else inQuotes = !inQuotes;
-    } else if (ch === ',' && !inQuotes) {
-      result.push(cur);
-      cur = '';
-    } else {
-      cur += ch;
+  // If today is a new calendar day in IST:
+  if (isNewDay) {
+    safeStorageSet('stardleLastDate', todayIST);
+    window.stardleSolution = null;
+    window.stardleToken = null;
+    gameEndHandled = false;
+
+    if (typeof defaultGameState !== 'undefined' && typeof defaultUserState !== 'undefined') {
+      const freshState = {
+        ...defaultGameState,
+        ...defaultUserState,
+        stats: saved?.stats || defaultUserState.stats,
+        winHistory: saved?.winHistory || defaultUserState.winHistory,
+        gameHistory: saved?.gameHistory || defaultUserState.gameHistory,
+        wordle: '',
+        solution: null,
+        token: null,
+        date: todayIST,
+        pointer: 0,
+        won: false,
+        checked: [null, null, null, null, null, null],
+        gameBoard: Array.from({ length: 30 }, _ => ({ letter: null, state: null })),
+      };
+
+      if (typeof State !== 'undefined') {
+        State = { ...State, ...freshState };
+      }
+      safeStorageSet('gameState', JSON.stringify(freshState));
+
+      // Clean all tiles in the DOM immediately
+      document.querySelectorAll('#game-board box').forEach(tile => {
+        tile.innerText = '';
+        tile.className = '';
+        tile.removeAttribute('style');
+      });
+
+      // Reset all keyboard buttons in the DOM
+      document.querySelectorAll('keyboard-row button').forEach(k => {
+        k.classList.remove('wrongLetter', 'wrongSpot', 'rightSpot');
+        k.removeAttribute('style');
+      });
+
+      // Ensure win modal / word popup is closed
+      const popup = document.getElementById('word-popup');
+      if (popup) {
+        popup.classList.remove('open');
+        popup.setAttribute('aria-hidden', 'true');
+      }
+
+      if (typeof update === 'function') {
+        update(freshState);
+      }
     }
+    return;
   }
-  result.push(cur);
-  return result;
+
+  // Same day: restore solution and session token if present
+  if (saved?.solution) {
+    window.stardleSolution = saved.solution;
+  }
+  if (saved?.token) {
+    window.stardleToken = saved.token;
+  }
+
+  if (!lastPlayedDate) {
+    safeStorageSet('stardleLastDate', todayIST);
+  }
 }
 
 
@@ -443,9 +451,22 @@ function startMidnightCountdown() {
       const ms = getMsUntilNextISTMidnight();
       el.textContent = formatCountdown(ms);
       if (ms <= 1000) {
-        // Next midnight IST arrived! Reload for the new day
-        // Clear stored date and reload for the new day
-        try { localStorage.removeItem('stardleLastDate'); } catch(e) { console.warn('[Stardle] Could not remove stardleLastDate:', e); }
+        // Next midnight IST arrived! Clear state cleanly and reload for the new day
+        try {
+          const saved = JSON.parse(localStorage.getItem('gameState') || '{}');
+          const cleanState = {
+            ...(typeof defaultGameState !== 'undefined' ? defaultGameState : {}),
+            ...(typeof defaultUserState !== 'undefined' ? defaultUserState : {}),
+            stats: saved?.stats || {},
+            winHistory: saved?.winHistory || [null, null, null, null, null, null],
+            gameHistory: saved?.gameHistory || [],
+            date: 'CLEARED_MIDNIGHT',
+          };
+          localStorage.setItem('gameState', JSON.stringify(cleanState));
+          localStorage.setItem('stardleLastDate', 'CLEARED_MIDNIGHT');
+        } catch(e) {
+          console.warn('[Stardle] Could not reset state at midnight:', e);
+        }
         setTimeout(() => location.reload(), 1500);
       }
     }
@@ -454,100 +475,10 @@ function startMidnightCountdown() {
   setInterval(tick, 1000);
 }
 
-/**
- * Compute a deterministic day-index based on IST (UTC+5:30).
- * Index wraps around when it exceeds the word list length.
- */
-function getISTDayIndex(listLength) {
-  if (!listLength) return 0;
-  const epoch = new Date('2024-01-01T00:00:00Z').getTime();
-  const nowIST = Date.now() + IST_OFFSET_MS;
-  const daysSinceEpoch = Math.floor((nowIST - epoch) / (24 * 60 * 60 * 1000));
-  return ((daysSinceEpoch % listLength) + listLength) % listLength;
-}
-
-function getTodayWordData() {
-  if (!stardleWordData.length) return null;
-  const idx = getISTDayIndex(stardleWordData.length);
-  return stardleWordData[idx];
-}
-
-/**
- * Override the game's chosen word with today's IST word from the CSV.
- * Enforces one game per day according to IST.
- */
-function injectTodaysWord() {
-  const entry = getTodayWordData();
-  if (!entry) return;
-
-  // Always update hint panel immediately so song links are ready
-  updateHintPanel(entry);
-
-  const word = entry.word;
-  if (word.length !== 5) {
-    console.warn(`[Stardle] Word "${word}" is not 5 letters — skipping injection.`);
-    return;
-  }
-
-  const todayIST = getISTDateString();
-  const lastPlayedDate = safeStorageGet('stardleLastDate');
-
-  const saved = (() => {
-    try {
-      const savedState = safeStorageGet('gameState');
-      return savedState ? JSON.parse(savedState) : null;
-    } catch(e) {
-      return null;
-    }
-  })();
-
-  // If today is a new calendar day in IST:
-  if (lastPlayedDate && lastPlayedDate !== todayIST) {
-    safeStorageSet('stardleLastDate', todayIST);
-    // Reset board for today's new word while keeping win stats & history
-    if (typeof defaultGameState !== 'undefined' && typeof defaultUserState !== 'undefined') {
-      const freshState = {
-        ...defaultGameState,
-        ...defaultUserState,
-        stats: saved?.stats || defaultUserState.stats,
-        winHistory: saved?.winHistory || defaultUserState.winHistory,
-        gameHistory: saved?.gameHistory || defaultUserState.gameHistory,
-        wordle: word,
-      };
-      if (typeof State !== 'undefined') {
-        State = { ...State, ...freshState };
-      }
-      safeStorageSet('gameState', JSON.stringify(freshState));
-      [...document.querySelectorAll('keyboard-row button')].forEach(k => k.removeAttribute('style'));
-    }
-    return;
-  }
-
-  // Record today's IST date if not recorded yet
-  if (!lastPlayedDate) {
-    safeStorageSet('stardleLastDate', todayIST);
-  }
-
-  // If already playing or completed today's word on this same day, keep it as-is
-  if (saved && saved.wordle === word) {
-    return;
-  }
-
-  // First time today: set wordle
-  if (typeof State !== 'undefined') {
-    State.wordle = word;
-    if (typeof persist === 'function') {
-      persist(null, State);
-    } else {
-      safeStorageSet('gameState', JSON.stringify(State));
-    }
-  }
-}
-
 /* Update hint panel with today's song info */
-function updateHintPanel(entry) {
-  if (!entry) entry = getTodayWordData();
-  if (!entry) return;
+function updateHintPanel(hint) {
+  if (!hint) hint = window.stardlePuzzleInfo?.hint;
+  if (!hint) return;
 
   const songNameEl  = document.getElementById('hint-song-name');
   const artistEl    = document.getElementById('hint-song-artist');
@@ -555,11 +486,11 @@ function updateHintPanel(entry) {
   const appleEl     = document.getElementById('hint-apple');
   const youtubeEl   = document.getElementById('hint-youtube');
 
-  if (songNameEl)  songNameEl.textContent  = entry.song   || '—';
-  if (artistEl)    artistEl.textContent    = entry.artist || '—';
-  if (spotifyEl)   spotifyEl.href          = entry.spotify || '#';
-  if (appleEl)     appleEl.href            = entry.apple || '#';
-  if (youtubeEl)   youtubeEl.href          = entry.youtube || '#';
+  if (songNameEl)  songNameEl.textContent  = hint.song   || '—';
+  if (artistEl)    artistEl.textContent    = hint.artist || '—';
+  if (spotifyEl)   spotifyEl.href          = hint.spotify || '#';
+  if (appleEl)     appleEl.href            = hint.apple || '#';
+  if (youtubeEl)   youtubeEl.href          = hint.youtube || '#';
 }
 
 
@@ -572,8 +503,7 @@ let hintPanelOpen = false;
 function toggleHintPanel(forceState) {
   const panel = document.getElementById('hint-panel');
   if (!panel) return;
-  const entry = getTodayWordData();
-  if (entry) updateHintPanel(entry);
+  updateHintPanel();
 
   if (typeof forceState === 'boolean') {
     hintPanelOpen = forceState;
@@ -653,61 +583,7 @@ document.addEventListener('keydown', function(e) {
    5. WORD POPUP — post-game reveal
    ============================================================== */
 
-/**
- * Word explanations are sourced from the CSV article URLs.
- * We show a brief explanation for each word below.
- * You can extend this object whenever you add new words.
- */
-const WORD_EXPLANATIONS = {
-  apsis:   "An apsis is the point in an orbit where an orbiting body is either at its closest (periapsis) or farthest (apoapsis) distance from the central body it orbits.",
-  epoch:   "In astronomy, an epoch is a specific moment in time used as a reference point for celestial coordinates. It defines the position of objects on the celestial sphere.",
-  comet:   "A comet is an icy small Solar System body that warms and begins to release gases when passing close to the Sun — a process called outgassing — producing a visible coma and sometimes a tail.",
-  lunar:   "Lunar refers to anything relating to the Moon. The word comes from 'Luna', the Latin name for Earth's natural satellite.",
-  helio:   "Helio- is a prefix meaning 'Sun', from the Greek 'Helios'. It appears in words like heliocentrism (Sun-centred) and heliosphere (the region of space dominated by the Sun's magnetic field).",
-  orbit:   "An orbit is the curved path of an object around a star, planet, or moon due to gravity. Most orbits are elliptical, a discovery attributed to Johannes Kepler.",
-  solar:   "Solar refers to anything relating to the Sun. The Solar System consists of the Sun and all objects gravitationally bound to it, including the eight planets.",
-  night:   "Night is the period between sunset and sunrise, when the Sun is below the horizon. Earth's rotation causes the cycle of day and night.",
-  atoms:   "Atoms are the fundamental units of ordinary matter. Each atom has a nucleus of protons and neutrons, surrounded by electrons. Stars fuse atoms together to release enormous energy.",
-  muons:   "Muons are elementary particles similar to electrons but ~207 times heavier. They rain down on Earth from cosmic ray interactions in the upper atmosphere.",
-  gamma:   "Gamma rays are the most energetic form of electromagnetic radiation, produced by radioactive decay and extreme astrophysical events like gamma-ray bursts and supernovae.",
-  hertz:   "Hertz (Hz) is the SI unit of frequency, equal to one cycle per second. Radio waves, light, and gravitational waves are all measured in hertz.",
-  laser:   "LASER stands for Light Amplification by Stimulated Emission of Radiation. Lasers are used in astronomy for adaptive optics, LIDAR, and laser-ranging of the Moon.",
-  light:   "Light is electromagnetic radiation that travels at ~299,792 km/s in a vacuum — the universal speed limit. A light-year is the distance light travels in one year (~9.46 trillion km).",
-  venus:   "Venus is the second planet from the Sun and the hottest planet in the Solar System due to a runaway greenhouse effect. It rotates retrograde (backwards) compared to most planets.",
-  earth:   "Earth is the third planet from the Sun and the only known planet to harbour life. It has a protective magnetic field, liquid water oceans, and a nitrogen-oxygen atmosphere.",
-  quark:   "Quarks are fundamental particles that combine to form hadrons like protons and neutrons. They are never found alone — a property called confinement.",
-  alien:   "Extraterrestrial life, or 'aliens', refers to life that may exist outside Earth. No confirmed evidence exists yet, but the universe's vast scale makes this one of astronomy's greatest open questions.",
-  ceres:   "Ceres is the largest object in the asteroid belt and the closest dwarf planet to the Sun. It was the first asteroid discovered, in 1801, by Giuseppe Piazzi.",
-  pluto:   "Pluto is a dwarf planet in the Kuiper Belt. Discovered in 1930 and reclassified in 2006, it has five moons. NASA's New Horizons probe revealed its stunning heart-shaped plain in 2015.",
-  nadir:   "The nadir is the point on the celestial sphere directly below an observer — the opposite of the zenith. It also refers to the lowest point in a planet's orbit or an object's path.",
-  probe:   "A space probe is an uncrewed spacecraft sent beyond Earth orbit to study celestial bodies. Notable probes include Voyager 1 & 2, which have left the Solar System.",
-  optic:   "Optics is the branch of physics that studies light behaviour. Telescopes use optical principles — reflection, refraction, and diffraction — to gather and focus light from distant objects.",
-  orion:   "Orion is one of the most recognisable constellations in the night sky, visible from both hemispheres. It contains stars like Betelgeuse and Rigel, and the famous Orion Nebula (M42).",
-  titan:   "Titan is Saturn's largest moon and the second-largest in the Solar System. It has a thick nitrogen atmosphere, methane lakes, and is considered a prime candidate for extraterrestrial life.",
-  libra:   "Libra is a zodiacal constellation representing a set of scales. It contains Gliese 581, a red dwarf with a planetary system that once sparked debate about habitable exoplanets.",
-  aster:   "Aster- is a Greek prefix meaning 'star'. It forms the root of words like asteroid, astronomy, and astrophysics — literally 'star-writing' and 'star-physics'.",
-  fermi:   "The Fermi Gamma-ray Space Telescope (FGST) studies gamma-ray astrophysics. The Fermi Paradox — 'where is everybody?' — ponders the absence of detected extraterrestrial civilizations.",
-  farad:   "The farad (F) is the SI unit of electrical capacitance. Capacitors play roles in radio telescopes, electronics in spacecraft, and detector circuits used in astronomy.",
-  pixel:   "A pixel is the smallest discrete element of a digital image. Astronomical CCD cameras and CMOS detectors are graded by pixel size — directly affecting resolution and field of view.",
-  focus:   "In optics, the focus is the point where light rays converge after passing through a lens or reflecting off a mirror. Telescope design revolves around bringing starlight to a precise focus.",
-  polar:   "A polar orbit passes over both poles of a planet. Many Earth-observation and weather satellites use polar orbits to achieve full global coverage.",
-  rover:   "A planetary rover is a space vehicle designed to move across the surface of a planet or other celestial body. Mars rovers include Curiosity and Perseverance.",
-  helix:   "The Helix Nebula (NGC 7293) is one of the closest planetary nebulae to Earth. Its ring-like structure gave it the nickname 'Eye of God'. Helical structures also appear in astrophysical jets.",
-  dwarf:   "Dwarf planets are Solar System bodies that orbit the Sun, have a nearly round shape due to gravity, but have not cleared their orbital neighbourhood. Examples include Pluto and Ceres.",
-  radio:   "Radio astronomy studies celestial objects by detecting radio waves they emit. Karl Jansky discovered cosmic radio waves in 1932, opening a new window on the universe.",
-  stars:   "Stars are massive, luminous spheres of plasma held together by gravity. Nuclear fusion in their cores converts hydrogen to helium, releasing the energy that makes them shine.",
-  space:   "Outer space, or simply space, is the expanse that exists beyond Earth's atmosphere. It is largely a vacuum, containing dust, gas, cosmic rays, and billions of galaxies.",
-};
-
-function getWordExplanation(word) {
-  return WORD_EXPLANATIONS[word.toLowerCase()] || 
-    `"${word.toUpperCase()}" is a term from astrophysics. Check the article below for a detailed explanation.`;
-}
-
 function showWordPopup() {
-  const entry = getTodayWordData();
-  if (!entry) return;
-
   // Ensure the game has been completed before revealing the word (won or all rows checked)
   if (!(State?.won || (State?.checked && State.checked[5] === true))) {
     if (typeof showToast === 'function') {
@@ -716,21 +592,23 @@ function showWordPopup() {
     return;
   }
 
-  const word = entry.word;
+  const sol = window.stardleSolution || State?.solution || State?.gameHistory?.at(-1)?.solution;
+  const hint = window.stardlePuzzleInfo?.hint;
+  const word = sol?.word || State?.wordle || '';
 
   // Word title
   const titleEl = document.getElementById('popup-word-title');
   if (titleEl) titleEl.textContent = word.toUpperCase();
 
-  // Astrophysics explanation
+  // Astrophysics explanation (loaded securely from server)
   const expEl = document.getElementById('popup-explanation');
-  if (expEl) expEl.textContent = getWordExplanation(word);
+  if (expEl) expEl.textContent = sol?.explanation || `"${word.toUpperCase()}" is a term from astrophysics. Check the article below for a detailed explanation.`;
 
   // Article link
   const articleLink = document.getElementById('popup-article-link');
   if (articleLink) {
-    if (entry.articleUrl && entry.articleUrl !== '#') {
-      articleLink.href = entry.articleUrl;
+    if (sol?.articleUrl && sol.articleUrl !== '#') {
+      articleLink.href = sol.articleUrl;
       articleLink.style.display = 'inline-flex';
     } else {
       articleLink.style.display = 'none';
@@ -738,19 +616,20 @@ function showWordPopup() {
   }
 
   // Song Clue details inside the modal
+  const song = sol?.song || hint?.song || '—';
+  const artist = sol?.artist || hint?.artist || '—';
   const songTitleEl = document.getElementById('popup-song-title');
   if (songTitleEl) {
-    songTitleEl.textContent = `${entry.song || '—'} by ${entry.artist || '—'}`;
+    songTitleEl.textContent = `${song} by ${artist}`;
   }
   const popSpotify = document.getElementById('popup-spotify');
   const popApple = document.getElementById('popup-apple');
   const popYoutube = document.getElementById('popup-youtube');
-  if (popSpotify) popSpotify.href = entry.spotify || '#';
-  if (popApple) popApple.href = entry.apple || '#';
-  if (popYoutube) popYoutube.href = entry.youtube || '#';
+  if (popSpotify) popSpotify.href = sol?.spotify || hint?.spotify || '#';
+  if (popApple) popApple.href = sol?.apple || hint?.apple || '#';
+  if (popYoutube) popYoutube.href = sol?.youtube || hint?.youtube || '#';
 
-  // Ensure header hint panel is also up to date
-  updateHintPanel(entry);
+  if (hint) updateHintPanel(hint);
 
   // Prevent double modal clash: if stats-container is open, hide it
   const statsContainer = document.getElementById('stats-container');
@@ -926,7 +805,7 @@ function startBoardObserver() {
   }
 
   function init() {
-    loadStardleCSV();
+    loadStardlePuzzle();
     startObserving();
     startBoardObserver();
     disableNewGame();
@@ -941,13 +820,7 @@ function startBoardObserver() {
       if (typeof State !== 'undefined') {
         if (State.won || (State.checked && State.checked[5] === true)) {
           gameEndHandled = true;
-          // Load CSV first, then show popup once data is available
-          const waitForData = setInterval(() => {
-            if (stardleWordData.length > 0) {
-              clearInterval(waitForData);
-              showWordPopup();
-            }
-          }, 200);
+          showWordPopup();
         }
       }
     }, 1000);
