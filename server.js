@@ -37,10 +37,10 @@ const server = http.createServer((req, res) => {
   };
 
   // Route API requests
-  if (pathname === '/api/puzzle-info') {
+  if (pathname === '/api/puzzle-info' || pathname === '/api/puzzle-info/') {
     return puzzleInfoHandler(req, res);
   }
-  if (pathname === '/api/check-guess') {
+  if (pathname === '/api/check-guess' || pathname === '/api/check-guess/') {
     return checkGuessHandler(req, res);
   }
 
