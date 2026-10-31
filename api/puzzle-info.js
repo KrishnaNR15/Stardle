@@ -7,17 +7,27 @@ module.exports = (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
 
   if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    return res.status(200).end();
+    return res.status ? res.status(200).end() : res.end();
   }
+
+  // Ensure HTTP 200 is set on standard Node http.ServerResponse as well as Express/Vercel res
+  res.statusCode = 200;
 
   try {
     const info = getPuzzleInfo();
-    return res.status(200).json(info);
+    if (typeof res.status === 'function' && typeof res.json === 'function') {
+      return res.status(200).json(info);
+    }
+    return res.end(JSON.stringify(info));
   } catch (err) {
     console.error('[API /puzzle-info error]:', err);
-    return res.status(500).json({ error: 'Failed to retrieve puzzle information' });
+    res.statusCode = 500;
+    if (typeof res.status === 'function' && typeof res.json === 'function') {
+      return res.status(500).json({ error: 'Failed to retrieve puzzle information' });
+    }
+    return res.end(JSON.stringify({ error: 'Failed to retrieve puzzle information' }));
   }
 };
 

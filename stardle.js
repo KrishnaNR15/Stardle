@@ -116,14 +116,35 @@
 
 async function loadStardlePuzzle() {
   try {
-    const resp = await fetch('/api/puzzle-info');
-    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-    const data = await resp.json();
-    window.stardlePuzzleInfo = data;
-    if (data.hint) {
-      updateHintPanel(data.hint);
+    let data = null;
+    let resp = await fetch('/api/puzzle-info');
+    if (resp.ok) {
+      data = await resp.json();
+    } else {
+      // Resilient fallback: parse JSON body anyway in case edge routing modified status
+      try {
+        const candidate = await resp.json();
+        if (candidate && (candidate.hint || candidate.puzzleNumber)) {
+          data = candidate;
+        }
+      } catch (_) {}
+      // If still no data, try trailing-slash URL /api/puzzle-info/
+      if (!data) {
+        try {
+          const altResp = await fetch('/api/puzzle-info/');
+          if (altResp.ok) data = await altResp.json();
+        } catch (_) {}
+      }
     }
-    handleDailyPuzzleState(data.date);
+
+    if (data && data.hint) {
+      window.stardlePuzzleInfo = data;
+      if (typeof State !== 'undefined') {
+        State.hint = data.hint;
+      }
+      updateHintPanel(data.hint);
+      handleDailyPuzzleState(data.date);
+    }
   } catch (e) {
     console.warn('[Stardle] Could not load puzzle info:', e);
   }
@@ -199,9 +220,14 @@ function handleDailyPuzzleState(todayIST) {
     return;
   }
 
-  // Same day: restore solution and session token if present
+  // Same day: restore solution, hint, and session token if present
   if (saved?.solution) {
     window.stardleSolution = saved.solution;
+  }
+  if (saved?.hint) {
+    if (!window.stardlePuzzleInfo) window.stardlePuzzleInfo = {};
+    window.stardlePuzzleInfo.hint = saved.hint;
+    updateHintPanel(saved.hint);
   }
   if (saved?.token) {
     window.stardleToken = saved.token;
@@ -477,7 +503,7 @@ function startMidnightCountdown() {
 
 /* Update hint panel with today's song info */
 function updateHintPanel(hint) {
-  if (!hint) hint = window.stardlePuzzleInfo?.hint;
+  if (!hint) hint = window.stardlePuzzleInfo?.hint || window.stardleSolution || State?.solution || State?.hint;
   if (!hint) return;
 
   const songNameEl  = document.getElementById('hint-song-name');
@@ -486,11 +512,20 @@ function updateHintPanel(hint) {
   const appleEl     = document.getElementById('hint-apple');
   const youtubeEl   = document.getElementById('hint-youtube');
 
-  if (songNameEl)  songNameEl.textContent  = hint.song   || '—';
-  if (artistEl)    artistEl.textContent    = hint.artist || '—';
-  if (spotifyEl)   spotifyEl.href          = hint.spotify || '#';
-  if (appleEl)     appleEl.href            = hint.apple || '#';
-  if (youtubeEl)   youtubeEl.href          = hint.youtube || '#';
+  const song   = hint.song   || '—';
+  const artist = hint.artist || '—';
+  const query  = song !== '—' ? encodeURIComponent(`${song} ${artist}`) : '';
+
+  if (songNameEl) songNameEl.textContent = song;
+  if (artistEl)   artistEl.textContent   = artist;
+
+  const spotifyHref = (hint.spotify && hint.spotify !== '#') ? hint.spotify : (query ? `https://open.spotify.com/search/${query}` : '#');
+  const appleHref   = (hint.apple && hint.apple !== '#')     ? hint.apple   : (query ? `https://music.apple.com/us/search?term=${query}` : '#');
+  const youtubeHref = (hint.youtube && hint.youtube !== '#') ? hint.youtube : (query ? `https://music.youtube.com/search?q=${query}` : '#');
+
+  if (spotifyEl) spotifyEl.href = spotifyHref;
+  if (appleEl)   appleEl.href   = appleHref;
+  if (youtubeEl) youtubeEl.href = youtubeHref;
 }
 
 
@@ -503,7 +538,13 @@ let hintPanelOpen = false;
 function toggleHintPanel(forceState) {
   const panel = document.getElementById('hint-panel');
   if (!panel) return;
-  updateHintPanel();
+
+  // If hint wasn't loaded yet, try loading puzzle info immediately
+  if (!window.stardlePuzzleInfo?.hint && typeof loadStardlePuzzle === 'function') {
+    loadStardlePuzzle().then(() => updateHintPanel());
+  } else {
+    updateHintPanel();
+  }
 
   if (typeof forceState === 'boolean') {
     hintPanelOpen = forceState;
@@ -593,7 +634,7 @@ function showWordPopup() {
   }
 
   const sol = window.stardleSolution || State?.solution || State?.gameHistory?.at(-1)?.solution;
-  const hint = window.stardlePuzzleInfo?.hint;
+  const hint = window.stardlePuzzleInfo?.hint || State?.hint;
   const word = sol?.word || State?.wordle || '';
 
   // Word title
@@ -618,6 +659,7 @@ function showWordPopup() {
   // Song Clue details inside the modal
   const song = sol?.song || hint?.song || '—';
   const artist = sol?.artist || hint?.artist || '—';
+  const query = song !== '—' ? encodeURIComponent(`${song} ${artist}`) : '';
   const songTitleEl = document.getElementById('popup-song-title');
   if (songTitleEl) {
     songTitleEl.textContent = `${song} by ${artist}`;
@@ -625,9 +667,14 @@ function showWordPopup() {
   const popSpotify = document.getElementById('popup-spotify');
   const popApple = document.getElementById('popup-apple');
   const popYoutube = document.getElementById('popup-youtube');
-  if (popSpotify) popSpotify.href = sol?.spotify || hint?.spotify || '#';
-  if (popApple) popApple.href = sol?.apple || hint?.apple || '#';
-  if (popYoutube) popYoutube.href = sol?.youtube || hint?.youtube || '#';
+
+  const spotifyHref = (sol?.spotify && sol.spotify !== '#') || (hint?.spotify && hint.spotify !== '#') || (query ? `https://open.spotify.com/search/${query}` : '#');
+  const appleHref   = (sol?.apple && sol.apple !== '#')     || (hint?.apple && hint.apple !== '#')     || (query ? `https://music.apple.com/us/search?term=${query}` : '#');
+  const youtubeHref = (sol?.youtube && sol.youtube !== '#') || (hint?.youtube && hint.youtube !== '#') || (query ? `https://music.youtube.com/search?q=${query}` : '#');
+
+  if (popSpotify) popSpotify.href = spotifyHref;
+  if (popApple)   popApple.href   = appleHref;
+  if (popYoutube) popYoutube.href = youtubeHref;
 
   if (hint) updateHintPanel(hint);
 
@@ -677,6 +724,20 @@ function openStatsFromPopup() {
 // Close popup when clicking overlay backdrop
 document.getElementById('word-popup-overlay').addEventListener('click', function(e) {
   if (e.target === this) closeWordPopup();
+});
+
+// Intercept clicks on music links if they are placeholder '#' so browser doesn't append /# to address bar
+document.addEventListener('click', function(e) {
+  const link = e.target.closest('a.hint-link, a.popup-music-link');
+  if (link) {
+    const href = link.getAttribute('href');
+    if (!href || href === '#' || href === 'javascript:void(0)') {
+      e.preventDefault();
+      if (typeof showToast === 'function') {
+        showToast('Hint link loading...', 1.5);
+      }
+    }
+  }
 });
 
 

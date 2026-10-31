@@ -44,7 +44,7 @@ const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
 const RATE_LIMIT_MAX_REQUESTS = 30;      // max 30 guesses per minute per IP
 
 function getClientIP(req) {
-  const forwarded = req.headers['x-forwarded-for'];
+  const forwarded = req.headers?.['x-forwarded-for'];
   if (forwarded) return forwarded.split(',')[0].trim();
   return req.socket?.remoteAddress || 'unknown';
 }
@@ -61,7 +61,7 @@ function isRateLimited(ip) {
 }
 
 // Clean up stale rate-limit entries periodically
-setInterval(() => {
+const rateCleanupTimer = setInterval(() => {
   const now = Date.now();
   for (const [ip, entry] of rateLimiter) {
     if ((now - entry.windowStart) > RATE_LIMIT_WINDOW_MS * 2) {
@@ -69,6 +69,9 @@ setInterval(() => {
     }
   }
 }, 5 * 60 * 1000);
+if (rateCleanupTimer && typeof rateCleanupTimer.unref === 'function') {
+  rateCleanupTimer.unref();
+}
 
 // ---------------------------------------------------------------
 // Main Handler
@@ -194,7 +197,10 @@ module.exports = async (req, res) => {
         explanation: todayEntry.explanation,
         articleUrl: todayEntry.articleUrl,
         song: todayEntry.song,
-        artist: todayEntry.artist
+        artist: todayEntry.artist,
+        spotify: todayEntry.spotify,
+        apple: todayEntry.apple,
+        youtube: todayEntry.youtube
       };
     }
 
