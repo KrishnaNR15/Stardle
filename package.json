@@ -1,0 +1,19 @@
+{
+  "name": "stardle",
+  "version": "1.0.0",
+  "description": "Daily astrophysics word game by Dhruva Astronomy Club",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "wordle",
+    "astronomy",
+    "astrophysics",
+    "game"
+  ],
+  "author": "Dhruva Astronomy Club",
+  "license": "MIT"
+}
+
